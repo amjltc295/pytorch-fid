@@ -221,6 +221,8 @@ def _compute_statistics_of_path(path, model, batch_size, dims, cuda):
         imgs = np.array([imread(str(fn)).astype(np.float32) for fn in files])
 
         # Bring images to shape (B, 3, H, W)
+        if len(imgs.shape) == 3:  # 1-channel image
+            imgs = np.expand_dims(imgs, 3).repeat(3, axis=3)
         imgs = imgs.transpose((0, 3, 1, 2))
 
         # Rescale images to be between 0 and 1
