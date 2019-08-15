@@ -33,17 +33,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import os
+import os.path as op
 import pathlib
+import importlib.util
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 import torch
 import numpy as np
-from scipy.misc import imread
+from imageio import imread
 from scipy import linalg
 from torch.autograd import Variable
 from torch.nn.functional import adaptive_avg_pool2d
 
-from inception import InceptionV3
+# Load module 'inception' in this directory
+# Original: from inception import InceptionV3
+spec = importlib.util.spec_from_file_location("inception", op.join(op.dirname(__file__), 'inception.py'))
+inception = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(inception)
+InceptionV3 = inception.InceptionV3
 
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
@@ -131,10 +138,10 @@ def calculate_frechet_distance(mu1, sigma1, mu2, sigma2, eps=1e-6):
     -- mu1   : Numpy array containing the activations of a layer of the
                inception net (like returned by the function 'get_predictions')
                for generated samples.
-    -- mu2   : The sample mean over activations, precalculated on an 
+    -- mu2   : The sample mean over activations, precalculated on an
                representive data set.
     -- sigma1: The covariance matrix over activations for generated samples.
-    -- sigma2: The covariance matrix over activations, precalculated on an 
+    -- sigma2: The covariance matrix over activations, precalculated on an
                representive data set.
 
     Returns:
